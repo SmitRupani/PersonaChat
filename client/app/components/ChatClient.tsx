@@ -72,39 +72,29 @@ export default function ChatClient({ personaId }: { personaId: PersonaId }) {
       setStreaming(true);
 
       try {
-        const res = await fetch(
-          `${process.env.NEXT_BACKEND_API || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000"}/chat`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ persona: personaId, message: text }),
-          }
-        );
-        if (!res.body) throw new Error("No response body");
+        const history = messages
+          .filter((m) => m.id !== asstId)
+          .map((m) => ({
+            role: m.sender === "user" ? "user" : "assistant",
+            content: m.text,
+          }));
 
-        const reader = res.body.getReader();
-        const dec = new TextDecoder();
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            persona: personaId,
+            messages: [...history, { role: "user", content: text }],
+          }),
+        });
 
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          const chunk = dec.decode(value, { stream: true });
-          for (const line of chunk.split("\n\n")) {
-            if (!line.startsWith("data: ")) continue;
-            const payload = line.slice(6);
-            if (payload === "[DONE]") break;
-            try {
-              const { text: t, error: e } = JSON.parse(payload);
-              if (t) setMessages((prev) => prev.map((m) => (m.id === asstId ? { ...m, text: m.text + t } : m)));
-              if (e)
-                setMessages((prev) =>
-                  prev.map((m) => (m.id === asstId ? { ...m, text: m.text + `\n\n⚠️ ${e}` } : m))
-                );
-            } catch {
-              /* ignore */
-            }
-          }
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.error || "Request failed");
         }
+
+        const replyText = data?.reply || "No response generated.";
+        setMessages((prev) => prev.map((m) => (m.id === asstId ? { ...m, text: replyText } : m)));
       } catch (err: any) {
         setMessages((prev) => prev.map((m) => (m.id === asstId ? { ...m, text: `⚠️ ${err.message}` } : m)));
       } finally {
