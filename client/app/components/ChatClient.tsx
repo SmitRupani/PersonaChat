@@ -134,7 +134,7 @@ export default function ChatClient({ personaId }: { personaId: PersonaId }) {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-44 space-y-5">
         {messages.length === 0 ? (
           <motion.div
             className="h-full flex flex-col items-center justify-center text-center py-16"
@@ -266,7 +266,7 @@ export default function ChatClient({ personaId }: { personaId: PersonaId }) {
       </div>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 px-6 py-5 border-t border-orange-100 bg-white/50 backdrop-blur-sm">
+      <div className="sticky bottom-0 z-20 px-6 py-5 border-t border-orange-100 bg-white/80 backdrop-blur-sm">
         <div className="flex items-end gap-3">
           <div
             className="flex-1 flex items-end gap-3 rounded-3xl px-5 py-3 transition-all"
