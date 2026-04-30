@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Personafy",
-  description: "An immersive persona-driven chat experience.",
+  title: "Persona Chat",
+  description: "Conversation with AI-powered learning mentors. Free models powered by OpenRouter.",
 };
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-[#030712] text-white antialiased">
+      <body className="min-h-screen antialiased">
         {children}
       </body>
     </html>

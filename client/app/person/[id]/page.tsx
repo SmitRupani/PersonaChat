@@ -1,54 +1,56 @@
+"use client";
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ChatClient from "../../components/ChatClient";
-import { personas, personaMap, type PersonaId } from "../../lib/personas";
+import { personaMap, type PersonaId } from "../../lib/personas";
+import { motion } from "framer-motion";
+import { useParams } from "next/navigation";
 
-type Props = { params: Promise<{ id: string }> };
-
-export function generateStaticParams() {
-  return personas.map((p) => ({ id: p.id }));
-}
-
-export default async function PersonaPage({ params }: Props) {
-  const { id } = await params;
+export default function PersonaPage() {
+  const params = useParams();
+  const id = params.id as string;
   const persona = personaMap[id as PersonaId];
-  if (!persona) notFound();
+
+  if (!persona) {
+    notFound();
+  }
 
   return (
-    <div
-      className="min-h-screen flex flex-col overflow-hidden"
-      style={{ background: "#030712" }}
-    >
-      {/* Ambient top glow tied to persona accent */}
-      <div
-        className="pointer-events-none fixed inset-x-0 top-0 h-[50vh] -z-0 opacity-20"
-        style={{
-          background: `radial-gradient(ellipse at 50% -10%, ${persona.accent} 0%, transparent 65%)`,
-        }}
-      />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 via-white to-rose-50 overflow-hidden">
+      {/* Decorative background */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-20 blur-3xl"
+          style={{ backgroundColor: persona.accent }}
+        />
+      </div>
 
-      {/* Nav bar */}
-      <header className="relative z-10 flex items-center justify-between px-6 pt-5 pb-3 max-w-screen-xl mx-auto w-full">
+      {/* Navigation Bar */}
+      <nav className="relative z-10 flex items-center justify-between px-6 pt-5 pb-4 border-b border-orange-100">
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-full font-medium"
+          className="group flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 hover:bg-orange-200 text-orange-950 font-semibold transition-all hover:scale-105 active:scale-95"
         >
-          ← Back
+          <span className="transition-transform group-hover:-translate-x-1">←</span>
+          <span>Back</span>
         </Link>
 
-        <div className="flex items-center gap-2 text-sm">
-          <span
-            className="w-2 h-2 rounded-full status-pulse"
-            style={{ backgroundColor: persona.accent, color: persona.accent }}
+        <div className="flex items-center gap-3">
+          <motion.div
+            className="w-3 h-3 rounded-full"
+            style={{ backgroundColor: persona.accent }}
+            animate={{ scale: [1, 1.3, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
           />
-          <span className="text-gray-400 font-medium tracking-wide">
+          <span className="text-sm font-bold" style={{ color: persona.accent }}>
             {persona.name}
           </span>
         </div>
-      </header>
+      </nav>
 
-      {/* Chat shell takes all remaining height */}
-      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-4 pb-4 max-w-screen-xl mx-auto w-full">
+      {/* Chat area */}
+      <div className="relative z-10 flex-1 flex flex-col min-h-0">
         <ChatClient personaId={id as PersonaId} />
       </div>
     </div>
